@@ -18,12 +18,14 @@
       "snapshot_groups": "{{user `SnapshotGroups`}}",
       "source_ami_filter": {
         "filters": {
-          "virtualization-type": "hvm",
           "name": "ubuntu/images/*ubuntu-jammy-22.04-amd64-server-*",
-          "root-device-type": "ebs"
+          "root-device-type": "ebs",
+          "virtualization-type": "hvm"
         },
-        "owners": ["099720109477"],
-        "most_recent": true
+        "most_recent": true,
+        "owners": [
+          "099720109477"
+        ]
       },
       "ssh_username": "{{user `SshUsername`}}",
       "tags": {
@@ -52,9 +54,9 @@
       "extra_arguments": [
         "-v"
       ],
+      "galaxy_file": "requirements.yaml",
       "playbook_file": "playbook.yaml",
-      "type": "ansible",
-      "galaxy_file": "requirements.yaml"
+      "type": "ansible"
     }
   ],
   "variables": {
@@ -63,7 +65,6 @@
     "InstanceType": "t3.micro",
     "OwnerEmail": "it@sagebase.org",
     "SnapshotGroups": "all",
-    "SourceImage": "ami-053b0d53c279acc90",
     "SshUsername": "ubuntu",
     "VolumeSize": "16"
   }
