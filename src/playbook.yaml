@@ -1,12 +1,51 @@
 - hosts: all
-  become: yes
+  become: true
+
+  roles:
+    - name: "geerlingguy.docker"
+      vars:
+        docker_edition: "ce"
+        docker_packages:
+          - "docker-{{ docker_edition }}"
+          - "docker-{{ docker_edition }}-cli"
+          - "docker-{{ docker_edition }}-rootless-extras"
+        docker_packages_state: present
+        docker_users:
+          - "{{ lookup('env','SSH_USERNAME') }}"
+    - name: "trallnag.awscli"
+      vars:
+        awscli_version: "2.11.21"
+        awscli_ssm_version: "1.2.463.0"
 
   tasks:
-    - name: install system packages
-      shell: "yes | aptdcon --hide-terminal --install 'build-essential'"
+    - name: Install packages
+      ansible.builtin.apt:
+        state: latest
+        update_cache: true
+        pkg:
+          - "curl"
+          - "jq"
+          - "ntpdate"
+          - "python3-pip"
+          - "unzip"
 
-    - name: install python packages
-      pip:
-        name:
-          - synapseclient
-        executable: pip3
+    - name: Update time
+      ansible.builtin.shell: "ntpdate -u pool.ntp.org"
+
+    - name: Make aws apps directory
+      ansible.builtin.file:
+        path: /opt/aws/bin
+        state: directory
+        mode: '0755'
+
+    # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cfn-helper-scripts-reference.html
+    - name: download CFN helper scripts
+      ansible.builtin.get_url:
+        url: https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-py3-latest.tar.gz
+        dest: /tmp/aws-cfn-bootstrap-py3-latest.tar.gz
+        force: yes
+
+    - name: install CFN helper scripts
+      ansible.builtin.pip:
+        name: file:///tmp/aws-cfn-bootstrap-py3-latest.tar.gz
+        extra_args: "--target=/opt/aws/bin"

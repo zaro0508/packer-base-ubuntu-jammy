@@ -1,0 +1,4 @@
+# Ansible requirements
+roles:
+  - name: "trallnag.awscli"
+  - name: "geerlingguy.docker"
