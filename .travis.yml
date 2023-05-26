@@ -31,6 +31,7 @@ jobs:
   include:
     - stage: validate
       script:
+        - ansible-galaxy install  --verbose --role-file src/requirements.yaml
         - pre-commit run --all-files
         - pushd src
         - packer validate -var ImageName=${IMAGE_NAME} template.json
