@@ -2,6 +2,8 @@
   become: true
 
   roles:
+    - name: "andrewrothstein.unarchive-deps"
+    - name: "deekayen.awscli2"
     - name: "geerlingguy.docker"
       vars:
         docker_edition: "ce"
@@ -12,10 +14,6 @@
         docker_packages_state: present
         docker_users:
           - "{{ lookup('env','SSH_USERNAME') }}"
-    - name: "trallnag.awscli"
-      vars:
-        awscli_version: "2.11.21"
-        awscli_ssm_version: "1.2.463.0"
 
   tasks:
     - name: Install packages
@@ -27,7 +25,6 @@
           - "jq"
           - "ntpdate"
           - "python3-pip"
-          - "unzip"
 
     - name: Update time
       ansible.builtin.shell: "ntpdate -u pool.ntp.org"

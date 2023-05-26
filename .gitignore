@@ -133,3 +133,7 @@ src/manifest.json
 
 # jetbrains
 .idea/
+
+
+# MAC stuff
+.DS_Store
