@@ -1,10 +1,28 @@
 - hosts: all
   become: true
 
-  roles:
-    - name: "andrewrothstein.unarchive-deps"
-    - name: "deekayen.awscli2"
-    - name: "geerlingguy.docker"
+  tasks:
+    - name: Install packages
+      ansible.builtin.apt:
+        state: present
+        update_cache: true
+        pkg:
+          - "curl"
+          - "jq"
+          - "ntpdate"
+          - "python3-pip"
+
+    - name: Install unarchive utils
+      ansible.builtin.import_role:
+        name: andrewrothstein.unarchive-deps
+
+    - name: Install AWS CLI v2
+      ansible.builtin.import_role:
+        name: deekayen.awscli2
+
+    - name: Install Docker
+      ansible.builtin.import_role:
+        name: geerlingguy.docker
       vars:
         docker_edition: "ce"
         docker_packages:
@@ -14,17 +32,6 @@
         docker_packages_state: present
         docker_users:
           - "{{ lookup('env','SSH_USERNAME') }}"
-
-  tasks:
-    - name: Install packages
-      ansible.builtin.apt:
-        state: latest
-        update_cache: true
-        pkg:
-          - "curl"
-          - "jq"
-          - "ntpdate"
-          - "python3-pip"
 
     - name: Update time
       ansible.builtin.shell: "ntpdate -u pool.ntp.org"
