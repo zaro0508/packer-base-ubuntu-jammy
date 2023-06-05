@@ -64,5 +64,5 @@ jobs:
       - name: Build and Upload AMI
         run: |
           pushd src
-          ansible-galaxy install  --verbose --role-file requirements.yaml
+          ansible-galaxy install  --verbose --role-file src/requirements.yaml
           AWS_DEFAULT_REGION=${{ env.AWS_REGION }} packer build -force -var AmiImageName=${{ env.AMI_IMAGE_NAME }} template.json
