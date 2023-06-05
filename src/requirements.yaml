@@ -1,5 +1,5 @@
 # Ansible requirements
 roles:
   - name: "andrewrothstein.unarchive-deps"
-  - name: "trallnag.awscli"
+  - name: "deekayen.awscli2"
   - name: "geerlingguy.docker"
