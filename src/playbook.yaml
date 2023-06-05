@@ -1,8 +1,29 @@
-- hosts: all
+- name: Main
+  hosts: all
   become: true
 
-  roles:
-    - name: "geerlingguy.docker"
+  tasks:
+    - name: Install packages
+      ansible.builtin.apt:
+        state: present
+        update_cache: true
+        pkg:
+          - "curl"
+          - "jq"
+          - "ntpdate"
+          - "python3-pip"
+
+    - name: Install unarchive utils
+      ansible.builtin.import_role:
+        name: andrewrothstein.unarchive-deps
+
+    - name: Install AWS CLI v2
+      ansible.builtin.import_role:
+        name: deekayen.awscli2
+
+    - name: Install Docker
+      ansible.builtin.import_role:
+        name: geerlingguy.docker
       vars:
         docker_edition: "ce"
         docker_packages:
@@ -12,25 +33,10 @@
         docker_packages_state: present
         docker_users:
           - "{{ lookup('env','SSH_USERNAME') }}"
-    - name: "trallnag.awscli"
-      vars:
-        awscli_version: "2.11.21"
-        awscli_ssm_version: "1.2.463.0"
-
-  tasks:
-    - name: Install packages
-      ansible.builtin.apt:
-        state: latest
-        update_cache: true
-        pkg:
-          - "curl"
-          - "jq"
-          - "ntpdate"
-          - "python3-pip"
-          - "unzip"
 
     - name: Update time
-      ansible.builtin.shell: "ntpdate -u pool.ntp.org"
+      ansible.builtin.command: "ntpdate -u pool.ntp.org"
+      changed_when: false
 
     - name: Make aws apps directory
       ansible.builtin.file:
@@ -39,13 +45,13 @@
         mode: '0755'
 
     # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cfn-helper-scripts-reference.html
-    - name: download CFN helper scripts
+    - name: Download CFN helper scripts
       ansible.builtin.get_url:
         url: https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-py3-latest.tar.gz
         dest: /tmp/aws-cfn-bootstrap-py3-latest.tar.gz
-        force: yes
+        force: true
 
-    - name: install CFN helper scripts
+    - name: Install CFN helper scripts
       ansible.builtin.pip:
         name: file:///tmp/aws-cfn-bootstrap-py3-latest.tar.gz
         extra_args: "--target=/opt/aws/bin"
