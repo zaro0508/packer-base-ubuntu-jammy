@@ -16,6 +16,11 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: 3.9
+          cache: 'pip'
+      - name: Install python packages
+        run: pip install ansible
+      - name: Install Ansible roles and collection
+        run: ansible-galaxy install  --verbose --role-file src/requirements.yaml
       - uses: pre-commit/action@v3.0.0
       - name: Setup `packer`
         uses: hashicorp/setup-packer@main
@@ -38,20 +43,29 @@ jobs:
       AWS_REGION: "us-east-1"
       AMI_IMAGE_NAME: ${{ github.event.repository.name }}-${{ github.ref_name }}
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-    - name: Setup `packer`
-      uses: hashicorp/setup-packer@main
-      with:
-        version: "latest"
-    - name: Assume AWS Role
-      uses: aws-actions/configure-aws-credentials@v2
-      with:
-        aws-region: ${{ env.AWS_REGION }}
-        role-to-assume: ${{ env.AWS_ROLE_TO_ASSUME }}
-        role-session-name: GitHubActions-${{ github.repository_owner }}-${{ github.event.repository.name }}-${{ github.run_id }}
-        role-duration-seconds: 3600
-    - name: Build and Upload AMI
-      run: |
-        pushd src
-        AWS_DEFAULT_REGION=${{ env.AWS_REGION }} packer build -force -var AmiImageName=${{ env.AMI_IMAGE_NAME }} template.json
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+          cache: 'pip'
+      - name: Install python packages
+        run: pip install ansible
+      - name: Install Ansible roles and collection
+        run: ansible-galaxy install  --verbose --role-file src/requirements.yaml
+      - name: Setup `packer`
+        uses: hashicorp/setup-packer@main
+        with:
+          version: "latest"
+      - name: Assume AWS Role
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ env.AWS_ROLE_TO_ASSUME }}
+          role-session-name: GitHubActions-${{ github.repository_owner }}-${{ github.event.repository.name }}-${{ github.run_id }}
+          role-duration-seconds: 3600
+      - name: Build and Upload AMI
+        run: |
+          pushd src
+          AWS_DEFAULT_REGION=${{ env.AWS_REGION }} packer build -force -var AmiImageName=${{ env.AMI_IMAGE_NAME }} template.json
