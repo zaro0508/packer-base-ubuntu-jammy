@@ -12,10 +12,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Setup `packer`
-        uses: hashicorp/setup-packer@main
-        with:
-          version: latest
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -25,6 +21,10 @@ jobs:
       - name: Install Ansible roles and collection
         run: ansible-galaxy install  --verbose --role-file src/requirements.yaml
       - uses: pre-commit/action@v3.0.0
+      - name: Setup `packer`
+        uses: hashicorp/setup-packer@main
+        with:
+          version: latest
       - name: packer validate
         run: |
           pushd src
@@ -44,18 +44,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Setup `packer`
-        uses: hashicorp/setup-packer@main
-        with:
-          version: latest
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: 3.9
       - name: Install python packages
         run: pip install ansible
-      - name: Install Ansible roles and collection
-        run: ansible-galaxy install  --verbose --role-file src/requirements.yaml
+      - name: Setup `packer`
+        uses: hashicorp/setup-packer@main
+        with:
+          version: "latest"
       - name: Assume AWS Role
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -66,4 +64,5 @@ jobs:
       - name: Build and Upload AMI
         run: |
           pushd src
+          ansible-galaxy install  --verbose --role-file requirements.yaml
           AWS_DEFAULT_REGION=${{ env.AWS_REGION }} packer build -force -var AmiImageName=${{ env.AMI_IMAGE_NAME }} template.json
