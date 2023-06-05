@@ -54,6 +54,8 @@ jobs:
           python-version: 3.9
       - name: Install python packages
         run: pip install ansible
+      - name: Install Ansible roles and collection
+        run: ansible-galaxy install  --verbose --role-file src/requirements.yaml
       - name: Assume AWS Role
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -64,5 +66,4 @@ jobs:
       - name: Build and Upload AMI
         run: |
           pushd src
-          ansible-galaxy install  --verbose --role-file src/requirements.yaml
           AWS_DEFAULT_REGION=${{ env.AWS_REGION }} packer build -force -var AmiImageName=${{ env.AMI_IMAGE_NAME }} template.json
