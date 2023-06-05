@@ -13,8 +13,8 @@ install:
   - sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
   - sudo apt-get update && sudo apt-get install packer
   # install awscli v2
-  - curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-  - unzip awscliv2.zip && sudo ./aws/install
+  - curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"
+  - unzip /tmp/awscliv2.zip -d /tmp/awscliv2 && sudo /tmp/awscliv2/aws/install
   # install other tools
   - pip install pre-commit travis-wait-improved ansible
 before_script:
@@ -31,6 +31,7 @@ jobs:
   include:
     - stage: validate
       script:
+        - ansible-galaxy install  --verbose --role-file src/requirements.yaml
         - pre-commit run --all-files
         - pushd src
         - packer validate -var ImageName=${IMAGE_NAME} template.json

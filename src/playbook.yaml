@@ -1,4 +1,5 @@
-- hosts: all
+- name: Main
+  hosts: all
   become: true
 
   tasks:
@@ -34,7 +35,8 @@
           - "{{ lookup('env','SSH_USERNAME') }}"
 
     - name: Update time
-      ansible.builtin.shell: "ntpdate -u pool.ntp.org"
+      ansible.builtin.command: "ntpdate -u pool.ntp.org"
+      changed_when: false
 
     - name: Make aws apps directory
       ansible.builtin.file:
@@ -43,13 +45,13 @@
         mode: '0755'
 
     # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cfn-helper-scripts-reference.html
-    - name: download CFN helper scripts
+    - name: Download CFN helper scripts
       ansible.builtin.get_url:
         url: https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-py3-latest.tar.gz
         dest: /tmp/aws-cfn-bootstrap-py3-latest.tar.gz
-        force: yes
+        force: true
 
-    - name: install CFN helper scripts
+    - name: Install CFN helper scripts
       ansible.builtin.pip:
         name: file:///tmp/aws-cfn-bootstrap-py3-latest.tar.gz
         extra_args: "--target=/opt/aws/bin"
