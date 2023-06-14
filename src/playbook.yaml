@@ -40,9 +40,8 @@
 
     - name: Make aws apps directory
       ansible.builtin.file:
-        path: /opt/aws/bin
+        path: /opt/aws
         state: directory
-        mode: '0755'
 
     # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cfn-helper-scripts-reference.html
     - name: Download CFN helper scripts
@@ -51,7 +50,13 @@
         dest: /tmp/aws-cfn-bootstrap-py3-latest.tar.gz
         force: true
 
+    # By default, installs to /usr/local/bin
     - name: Install CFN helper scripts
       ansible.builtin.pip:
         name: file:///tmp/aws-cfn-bootstrap-py3-latest.tar.gz
-        extra_args: "--target=/opt/aws/bin"
+
+    - name: Create CFN helper symbolic link
+      ansible.builtin.file:
+        src: "/usr/local/init/ubuntu/cfn-hup"
+        dest: "/etc/init.d/cfn-hup"
+        state: link
