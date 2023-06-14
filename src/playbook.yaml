@@ -9,7 +9,6 @@
         update_cache: true
         pkg:
           - "curl"
-          - "jq"
           - "ntpdate"
           - "python3-pip"
 
