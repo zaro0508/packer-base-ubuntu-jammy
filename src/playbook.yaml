@@ -50,6 +50,7 @@
         dest: /tmp/aws-cfn-bootstrap-py3-latest.tar.gz
         force: true
 
+    # By default, installs to /usr/local/bin
     - name: Install CFN helper scripts
       ansible.builtin.pip:
         name: file:///tmp/aws-cfn-bootstrap-py3-latest.tar.gz
