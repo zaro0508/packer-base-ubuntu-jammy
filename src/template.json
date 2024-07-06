@@ -30,7 +30,7 @@
         },
         "most_recent": true,
         "owners": [
-          "099720109477"
+          "amazon"
         ]
       },
       "ssh_username": "{{user `SshUsername`}}",
@@ -53,6 +53,12 @@
     }
   ],
   "provisioners": [
+    {
+      "inline": [
+        "cloud-init status --wait"
+      ],
+      "type": "shell"
+    },
     {
       "extra_arguments": [
         "-v",
